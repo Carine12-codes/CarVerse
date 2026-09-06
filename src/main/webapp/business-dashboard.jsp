@@ -142,6 +142,22 @@
   }
   if (businessName == null) businessName = "Business Partner";
   if (brandName    == null) brandName    = "";
+
+  // ── Live dashboard stats ─────────────────────────────────────────────────
+  int    dashActiveCars     = 0;
+  int    dashTotalBookings  = 0;
+  double dashMonthlyRevenue = 0;
+  double dashCommission     = 0;
+  int    dashPendingCancels = 0;
+  try {
+    com.servlet.BusinessDAO _dao = new com.servlet.BusinessDAO();
+    dashActiveCars     = _dao.getActiveCarCount(businessId);
+    dashTotalBookings  = _dao.getTotalBookingCount(businessId);
+    dashMonthlyRevenue = _dao.getMonthlyRevenue(businessId);
+    dashPendingCancels = _dao.getPendingCancellationCount(businessId);
+    double _rate       = _dao.getCommissionRate(businessId);
+    dashCommission     = dashMonthlyRevenue * (_rate / 100.0);
+  } catch (Exception _e) { /* stats unavailable — show zeroes */ }
 %>
 
 <!-- ── Navbar ──────────────────────────────────────────────────────────── -->
@@ -187,25 +203,31 @@
     <div class="stats-bar">
       <div class="stat-card">
         <div class="stat-label">Active Listings</div>
-        <div class="stat-value">—</div>
-        <div class="stat-note">Coming soon</div>
+        <div class="stat-value"><%= dashActiveCars %></div>
+        <div class="stat-note">Available cars</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Total Bookings</div>
-        <div class="stat-value">—</div>
-        <div class="stat-note">Coming soon</div>
+        <div class="stat-value"><%= dashTotalBookings %></div>
+        <div class="stat-note">All time</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">This Month's Revenue</div>
-        <div class="stat-value">—</div>
-        <div class="stat-note">Coming soon</div>
+        <div class="stat-value">₹<%= String.format("%,.0f", dashMonthlyRevenue) %></div>
+        <div class="stat-note">Gross booking amount</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Commission Earned</div>
-        <div class="stat-value">—</div>
-        <div class="stat-note">Coming soon</div>
+        <div class="stat-value">₹<%= String.format("%,.0f", dashCommission) %></div>
+        <div class="stat-note">Platform's share this month</div>
       </div>
     </div>
+    <% if (dashPendingCancels > 0) { %>
+    <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:12px 18px;margin-bottom:18px;font-size:14px;font-weight:600;color:#92400e;">
+      ⚠️ You have <strong><%= dashPendingCancels %></strong> pending cancellation request<%= dashPendingCancels > 1 ? "s" : "" %>.
+      <a href="BusinessBookings" style="color:#92400e;text-decoration:underline;">Review now →</a>
+    </div>
+    <% } %>
 
     <!-- Section heading -->
     <div class="section-head" style="margin-bottom:18px;">
@@ -218,47 +240,53 @@
     <!-- Action cards -->
     <div class="action-grid">
 
-      <div class="action-card">
+      <a class="action-card" href="BusinessCar?action=list" style="text-decoration:none;color:inherit;">
         <div class="ac-icon">🚗</div>
         <h3>Manage Cars</h3>
         <p>Add new car listings, update availability, pricing and specifications.</p>
-        <span class="coming-soon">Coming soon</span>
-      </div>
+        <span class="btn btn-primary" style="font-size:12px;padding:8px 14px;width:fit-content;">Open →</span>
+      </a>
 
-      <div class="action-card">
+      <a class="action-card" href="BusinessInventory" style="text-decoration:none;color:inherit;">
         <div class="ac-icon">📦</div>
         <h3>Manage Inventory</h3>
         <p>Track your fleet, monitor stock levels, and manage car allocation.</p>
-        <span class="coming-soon">Coming soon</span>
-      </div>
+        <span class="btn btn-primary" style="font-size:12px;padding:8px 14px;width:fit-content;">Open →</span>
+      </a>
 
-      <div class="action-card">
+      <a class="action-card" href="BusinessBookings" style="text-decoration:none;color:inherit;">
         <div class="ac-icon">📋</div>
         <h3>View Bookings</h3>
-        <p>See all bookings made for your cars and manage their status.</p>
-        <span class="coming-soon">Coming soon</span>
-      </div>
+        <p>See all bookings made for your cars and manage cancellation requests.</p>
+        <span class="btn btn-primary" style="font-size:12px;padding:8px 14px;width:fit-content;">Open →</span>
+      </a>
 
-      <div class="action-card">
+      <a class="action-card" href="BusinessBookings" style="text-decoration:none;color:inherit;">
         <div class="ac-icon">↩️</div>
         <h3>Cancellation Requests</h3>
         <p>Review and respond to cancellation requests from customers.</p>
-        <span class="coming-soon">Coming soon</span>
-      </div>
+        <% if (dashPendingCancels > 0) { %>
+        <span style="font-size:12px;font-weight:900;color:#92400e;background:#fef9c3;border-radius:99px;padding:4px 12px;width:fit-content;">
+          <%= dashPendingCancels %> pending
+        </span>
+        <% } else { %>
+        <span class="btn btn-primary" style="font-size:12px;padding:8px 14px;width:fit-content;">Open →</span>
+        <% } %>
+      </a>
 
-      <div class="action-card">
+      <a class="action-card" href="BusinessEarnings" style="text-decoration:none;color:inherit;">
         <div class="ac-icon">💰</div>
         <h3>Commission &amp; Earnings</h3>
         <p>View commission breakdowns, payout history and earning reports.</p>
-        <span class="coming-soon">Coming soon</span>
-      </div>
+        <span class="btn btn-primary" style="font-size:12px;padding:8px 14px;width:fit-content;">Open →</span>
+      </a>
 
-      <div class="action-card">
+      <a class="action-card" href="BusinessProfile" style="text-decoration:none;color:inherit;">
         <div class="ac-icon">🏢</div>
         <h3>Business Profile</h3>
         <p>Update your business information, contact details and branding.</p>
-        <span class="coming-soon">Coming soon</span>
-      </div>
+        <span class="btn btn-primary" style="font-size:12px;padding:8px 14px;width:fit-content;">Open →</span>
+      </a>
 
     </div>
 
