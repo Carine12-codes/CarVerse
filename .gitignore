@@ -28,3 +28,6 @@ node_modules/
 package-lock.json
 package.json
 scripts/
+agents/
+skills-lock.json
+.agents
