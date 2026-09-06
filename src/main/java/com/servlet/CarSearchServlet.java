@@ -54,6 +54,10 @@ public class CarSearchServlet extends HttpServlet {
         String budget = request.getParameter("budget");
         String[] bodyTypes = request.getParameterValues("body");
         String[] fuelTypes = request.getParameterValues("fuel");
+        String[] brandTypes = request.getParameterValues("brand");
+        String[] transmissionTypes = request.getParameterValues("transmission");
+        String[] seatingTypes = request.getParameterValues("seating");
+        String[] ratingTypes = request.getParameterValues("rating");
         String sort = request.getParameter("sort");
 
         int page = 1;
@@ -246,6 +250,85 @@ public class CarSearchServlet extends HttpServlet {
                     );
                 }
 
+                where.append(") ");
+            }
+
+
+            /*
+             * ----------------------------------------------------------
+             * Brand
+             * ----------------------------------------------------------
+             */
+
+            if (brandTypes != null && brandTypes.length > 0) {
+                where.append(" AND UPPER(brand) IN (");
+                for (int i = 0; i < brandTypes.length; i++) {
+                    if (i > 0) {
+                        where.append(",");
+                    }
+                    where.append("UPPER(?)");
+                    parameters.add(brandTypes[i]);
+                }
+                where.append(") ");
+            }
+
+
+            /*
+             * ----------------------------------------------------------
+             * Transmission
+             * ----------------------------------------------------------
+             */
+
+            if (transmissionTypes != null && transmissionTypes.length > 0) {
+                where.append(" AND (");
+                for (int i = 0; i < transmissionTypes.length; i++) {
+                    if (i > 0) {
+                        where.append(" OR ");
+                    }
+                    where.append("(UPPER(engine) LIKE UPPER(?) OR UPPER(drive_type) LIKE UPPER(?) OR UPPER(features) LIKE UPPER(?))");
+                    String term = "%" + transmissionTypes[i] + "%";
+                    parameters.add(term);
+                    parameters.add(term);
+                    parameters.add(term);
+                }
+                where.append(") ");
+            }
+
+
+            /*
+             * ----------------------------------------------------------
+             * Seating capacity
+             * ----------------------------------------------------------
+             */
+
+            if (seatingTypes != null && seatingTypes.length > 0) {
+                where.append(" AND (");
+                for (int i = 0; i < seatingTypes.length; i++) {
+                    if (i > 0) {
+                        where.append(" OR ");
+                    }
+                    where.append("UPPER(seating_capacity) LIKE UPPER(?)");
+                    parameters.add("%" + seatingTypes[i] + "%");
+                }
+                where.append(") ");
+            }
+
+
+            /*
+             * ----------------------------------------------------------
+             * Safety Rating
+             * ----------------------------------------------------------
+             */
+
+            if (ratingTypes != null && ratingTypes.length > 0) {
+                where.append(" AND (");
+                for (int i = 0; i < ratingTypes.length; i++) {
+                    if (i > 0) {
+                        where.append(" OR ");
+                    }
+                    where.append("UPPER(safety_rating) LIKE UPPER(?)");
+                    parameters.add("%" + ratingTypes[i] + "%");
+                }
                 where.append(") ");
             }
 
@@ -488,6 +571,26 @@ public class CarSearchServlet extends HttpServlet {
         request.setAttribute(
             "selectedSort",
             sort
+        );
+
+        request.setAttribute(
+            "selectedBrands",
+            brandTypes
+        );
+
+        request.setAttribute(
+            "selectedTransmissions",
+            transmissionTypes
+        );
+
+        request.setAttribute(
+            "selectedSeatings",
+            seatingTypes
+        );
+
+        request.setAttribute(
+            "selectedRatings",
+            ratingTypes
         );
 
 
