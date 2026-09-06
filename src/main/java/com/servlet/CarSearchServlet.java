@@ -75,7 +75,7 @@ public class CarSearchServlet extends HttpServlet {
 
         int offset = (page - 1) * PAGE_SIZE;
 
-        List<Car> cars = new ArrayList<Car>();
+        List<CarModel> cars = new ArrayList<CarModel>();
 
         int totalCars = 0;
 
@@ -388,7 +388,7 @@ public class CarSearchServlet extends HttpServlet {
 
                     while (rs.next()) {
 
-                        Car car = new Car();
+                        CarModel car = new CarModel();
 
                         car.setCarId(
                             rs.getInt("car_id")
