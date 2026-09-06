@@ -501,7 +501,7 @@
 
 
             <h2>
-                ${car.model_name}
+                ${car.brand} ${car.modelName}
             </h2>
 
 
@@ -529,7 +529,7 @@
                     </div>
 
                     <div class="detail-value">
-                        ${car.body_type}
+                        ${car.bodyType}
                     </div>
 
                 </div>
@@ -543,7 +543,7 @@
                     </div>
 
                     <div class="detail-value">
-                        ${car.price_range}
+                        ${car.priceRange}
                     </div>
 
                 </div>
@@ -598,7 +598,7 @@
                 <input
                     type="hidden"
                     name="carId"
-                    value="${car.carid}"
+                    value="${car.carId}"
                 >
 
 

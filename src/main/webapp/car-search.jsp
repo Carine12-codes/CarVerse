@@ -1,14 +1,14 @@
 <%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
 
 <%@ page import="java.util.List" %>
-<%@ page import="com.servlet.Car" %>
+<%@ page import="com.servlet.CarModel" %>
 
 <%
 /*
 * Data received from CarSearchServlet
 */
-List<Car> cars =
-(List<Car>) request.getAttribute("cars");
+List<CarModel> cars =
+(List<CarModel>) request.getAttribute("cars");
 
 
 Integer totalCarsObj =
@@ -741,7 +741,7 @@ String[] selectedFuels =
                 <% if (cars != null && !cars.isEmpty()) { %>
 
 
-                    <% for (Car car : cars) {
+                    <% for (CarModel car : cars) {
 
                         String image =
                             car.getImages();

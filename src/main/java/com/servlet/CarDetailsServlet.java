@@ -11,10 +11,9 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 
-@WebServlet("/BookingDisplayServlet")
-public class BookingDisplayServlet extends HttpServlet {
+@WebServlet("/car-details")
+public class CarDetailsServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
@@ -41,38 +40,44 @@ public class BookingDisplayServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request,
-                          HttpServletResponse response)
+    protected void doGet(HttpServletRequest request,
+                         HttpServletResponse response)
             throws ServletException, IOException {
 
-        HttpSession session = request.getSession(false);
+        request.setCharacterEncoding("UTF-8");
 
-        if (session == null || session.getAttribute("CARID") == null) {
+        /* ------------------------------------------------------------------ *
+         * Validate carId parameter
+         * ------------------------------------------------------------------ */
+
+        String carIdParam = request.getParameter("carId");
+
+        if (carIdParam == null || carIdParam.trim().isEmpty()) {
             response.sendRedirect(
                     request.getContextPath() + "/car-search");
             return;
         }
 
-        String carIdStr = (String) session.getAttribute("CARID");
-
         int carId;
+
         try {
-            carId = Integer.parseInt(carIdStr.trim());
+            carId = Integer.parseInt(carIdParam.trim());
         } catch (NumberFormatException e) {
             response.sendRedirect(
                     request.getContextPath() + "/car-search");
             return;
         }
 
+        /* ------------------------------------------------------------------ *
+         * Fetch car from DB
+         * ------------------------------------------------------------------ */
+
         CarModel car = null;
 
-        try (Connection con = DriverManager.getConnection(
-                DB_URL, DB_USER, DB_PASSWORD)) {
+        try (Connection connection =
+                     DriverManager.getConnection(
+                             DB_URL, DB_USER, DB_PASSWORD)) {
 
-            /*
-             * Fetch every field needed by booking.jsp.
-             * Uses a PreparedStatement — no string concatenation.
-             */
             String sql =
                     "SELECT car_id, model_name, brand, body_type, price_range, "
                     + "fuel_types, mileage, engine, power, torque, "
@@ -82,7 +87,8 @@ public class BookingDisplayServlet extends HttpServlet {
                     + "FROM car_details "
                     + "WHERE car_id = ?";
 
-            try (PreparedStatement ps = con.prepareStatement(sql)) {
+            try (PreparedStatement ps =
+                         connection.prepareStatement(sql)) {
 
                 ps.setInt(1, carId);
 
@@ -123,6 +129,10 @@ public class BookingDisplayServlet extends HttpServlet {
                     "Unable to load car details. Please try again.");
         }
 
+        /* ------------------------------------------------------------------ *
+         * If no car found, redirect back to search
+         * ------------------------------------------------------------------ */
+
         if (car == null && request.getAttribute("error") == null) {
             response.sendRedirect(
                     request.getContextPath() + "/car-search");
@@ -130,7 +140,8 @@ public class BookingDisplayServlet extends HttpServlet {
         }
 
         request.setAttribute("car", car);
-        request.getRequestDispatcher("/booking.jsp")
+
+        request.getRequestDispatcher("/car-details.jsp")
                .forward(request, response);
     }
 }
