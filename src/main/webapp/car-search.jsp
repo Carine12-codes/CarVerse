@@ -115,13 +115,32 @@
 
                                 </div>
 
-                                <a href="login.jsp">
-                                    Sign in
-                                </a>
+                                  <%
+                                        String userName = (String) session.getAttribute("USERNAME");
+                                        String userId = (String) session.getAttribute("USERID");
 
-                                <a class="btn btn-primary" href="user_registration.html">
-                                    Get started →
-                                </a>
+                                        if (userName == null || userId == null) {
+                                    %>
+
+                                        <!-- User is not logged in -->
+                                        <a class="btn btn-outline" href="login.html">Sign in</a>
+
+                                        <a class="btn btn-primary" href="user_registration.html">
+                                            Sign up →
+                                        </a>
+
+                                    <%
+                                        } else {
+                                    %>
+
+                                        <!-- Logged-in user -->
+                                        <a class="user-name" href="view_profile">
+                                            Welcome, <%= userName %>
+                                        </a>
+
+                                    <%
+                                        }
+                                    %>
 
                             </div>
 

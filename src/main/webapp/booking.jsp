@@ -1,5 +1,24 @@
-<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
+<%@ page import="com.servlet.CarModel" %>
 
+<%
+    CarModel car     = (CarModel) request.getAttribute("car");
+    String   errorMsg = (String) request.getAttribute("error");
+
+    String fullName = "";
+
+    if (car != null) {
+        fullName = (car.getBrand() != null ? car.getBrand() : "")
+                 + " "
+                 + (car.getModelName() != null ? car.getModelName() : "");
+        fullName = fullName.trim();
+    }
+%>
+<%!
+    private String val(String s) {
+        return (s != null && !s.trim().isEmpty()) ? s.trim() : "—";
+    }
+%>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -8,7 +27,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>CarVerse | Reserve Car</title>
+    <title>
+        <%= car != null ? fullName + " | CarVerse | Reserve" : "Reserve Car | CarVerse" %>
+    </title>
 
     <style>
 
@@ -74,6 +95,7 @@
             list-style: none;
 
             display: flex;
+            align-items: center;
             gap: 30px;
         }
 
@@ -92,6 +114,19 @@
 
         .nav-links a:hover {
             color: #7dbd00;
+        }
+
+
+        .btn-outline {
+            border: 1px solid var(--dark);
+            padding: 8px 16px;
+        }
+
+
+        .btn-primary {
+            background: var(--lime);
+            color: var(--dark) !important;
+            padding: 8px 16px;
         }
 
 
@@ -373,6 +408,34 @@
         }
 
 
+        /* ================= ERROR STATE ================= */
+
+        .error-box {
+
+            background: var(--white);
+
+            border: 1px solid var(--border);
+
+            text-align: center;
+
+            padding: 60px 28px;
+        }
+
+
+        .error-box h2 {
+
+            text-transform: uppercase;
+        }
+
+
+        .error-box p {
+
+            color: var(--grey);
+
+            margin: 12px 0 24px;
+        }
+
+
         /* ================= FOOTER TEXT ================= */
 
         .bottom-text {
@@ -447,7 +510,7 @@
         </li>
 
         <li>
-            <a href="CarListServlet">Cars</a>
+            <a href="<%= request.getContextPath() %>/car-search">Cars</a>
         </li>
 
         <li>
@@ -455,7 +518,28 @@
         </li>
 
         <li>
-            <a href="ProfileServlet">Profile</a>
+            <%
+                String userName = (String) session.getAttribute("USERNAME");
+                String userId   = (String) session.getAttribute("USERID");
+
+                if (userName == null || userId == null) {
+            %>
+
+                <!-- User is not logged in -->
+                <a class="logo btn-outline" href="login.html" style="font-size:11px;">Sign in</a>
+
+            <%
+                } else {
+            %>
+
+                <!-- Logged-in user -->
+                <a class="user-name" href="view_profile">
+                    Welcome, <%= userName %>
+                </a>
+
+            <%
+                }
+            %>
         </li>
 
     </ul>
@@ -468,6 +552,21 @@
 
 <div class="container">
 
+
+    <% if (errorMsg != null) { %>
+
+        <!-- ================= ERROR STATE ================= -->
+
+        <div class="error-box">
+            <h2>Something went wrong</h2>
+            <p><%= errorMsg %></p>
+            <a class="confirm-btn" style="display:inline-block;width:auto;padding:15px 30px;text-decoration:none;"
+               href="<%= request.getContextPath() %>/car-search">
+                ← Back to search
+            </a>
+        </div>
+
+    <% } else if (car != null) { %>
 
     <!-- PAGE HEADER -->
 
@@ -501,7 +600,7 @@
 
 
             <h2>
-                ${car.brand} ${car.modelName}
+                <%= fullName %>
             </h2>
 
 
@@ -515,7 +614,7 @@
                     </div>
 
                     <div class="detail-value">
-                        ${car.brand}
+                        <%= val(car.getBrand()) %>
                     </div>
 
                 </div>
@@ -529,7 +628,7 @@
                     </div>
 
                     <div class="detail-value">
-                        ${car.bodyType}
+                        <%= val(car.getBodyType()) %>
                     </div>
 
                 </div>
@@ -543,7 +642,7 @@
                     </div>
 
                     <div class="detail-value">
-                        ${car.priceRange}
+                        <%= val(car.getPriceRange()) %>
                     </div>
 
                 </div>
@@ -557,7 +656,43 @@
                     </div>
 
                     <div class="detail-value">
-                        ${car.length} × ${car.width} × ${car.height} mm
+                        <%
+                            boolean hasDims =
+                                   (car.getLength() != null && !car.getLength().trim().isEmpty())
+                                || (car.getWidth()  != null && !car.getWidth().trim().isEmpty())
+                                || (car.getHeight() != null && !car.getHeight().trim().isEmpty());
+                        %>
+                        <% if (hasDims) { %>
+                            <%= val(car.getLength()) %> × <%= val(car.getWidth()) %> × <%= val(car.getHeight()) %> mm
+                        <% } else { %>
+                            —
+                        <% } %>
+                    </div>
+
+                </div>
+
+
+                <div class="detail">
+
+                    <div class="detail-label">
+                        Seating
+                    </div>
+
+                    <div class="detail-value">
+                        <%= val(car.getSeatingCapacity()) %>
+                    </div>
+
+                </div>
+
+
+                <div class="detail">
+
+                    <div class="detail-label">
+                        Fuel Type
+                    </div>
+
+                    <div class="detail-value">
+                        <%= val(car.getFuelTypes()) %>
                     </div>
 
                 </div>
@@ -590,7 +725,7 @@
             </p>
 
 
-            <form action="BookingSubmitServlet" method="post">
+            <form action="<%= request.getContextPath() %>/BookingSubmitServlet" method="post">
 
 
                 <!-- CAR ID FROM SERVER -->
@@ -598,7 +733,7 @@
                 <input
                     type="hidden"
                     name="carId"
-                    value="${car.carId}"
+                    value="<%= car.getCarId() %>"
                 >
 
 
@@ -635,6 +770,8 @@
 
 
     </div>
+
+    <% } %>
 
 
 

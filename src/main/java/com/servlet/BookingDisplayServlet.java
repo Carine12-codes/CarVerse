@@ -21,8 +21,8 @@ public class BookingDisplayServlet extends HttpServlet {
     private static final String DB_URL =
             "jdbc:oracle:thin:@localhost:1521:XE";
 
-    private static final String DB_USER     = System.getenv("DB_USER");
-    private static final String DB_PASSWORD = System.getenv("DB_PASSWORD");
+    private static final String DB_USER     = "CARVERSE";
+    private static final String DB_PASSWORD = "manager";
 
     @Override
     public void init() throws ServletException {
@@ -45,15 +45,19 @@ public class BookingDisplayServlet extends HttpServlet {
                           HttpServletResponse response)
             throws ServletException, IOException {
 
-        HttpSession session = request.getSession(false);
+        /*
+         * carId now comes straight from the "Book Car" form submitted
+         * on car-details.jsp — NOT from session. Nothing in the app was
+         * ever setting session.setAttribute("CARID", ...), so relying on
+         * that always redirected back to car-search.
+         */
+        String carIdStr = request.getParameter("carId");
 
-        if (session == null || session.getAttribute("CARID") == null) {
+        if (carIdStr == null || carIdStr.trim().isEmpty()) {
             response.sendRedirect(
                     request.getContextPath() + "/car-search");
             return;
         }
-
-        String carIdStr = (String) session.getAttribute("CARID");
 
         int carId;
         try {
@@ -132,5 +136,17 @@ public class BookingDisplayServlet extends HttpServlet {
         request.setAttribute("car", car);
         request.getRequestDispatcher("/booking.jsp")
                .forward(request, response);
+    }
+
+    /*
+     * Support GET too, so a plain link (or a browser refresh/bookmark)
+     * to /BookingDisplayServlet?carId=123 works instead of throwing a
+     * 405 Method Not Allowed. It simply reuses the POST logic.
+     */
+    @Override
+    protected void doGet(HttpServletRequest request,
+                         HttpServletResponse response)
+            throws ServletException, IOException {
+        doPost(request, response);
     }
 }

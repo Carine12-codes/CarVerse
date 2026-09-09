@@ -68,8 +68,32 @@
             <a href="index.jsp#ownership">Ownership</a>
         </div>
 
-        <a href="login.jsp">Sign in</a>
-        <a class="btn btn-primary" href="user_registration.html">Get started →</a>
+          <%
+                String userName = (String) session.getAttribute("USERNAME");
+                String userId = (String) session.getAttribute("USERID");
+
+                if (userName == null || userId == null) {
+            %>
+
+                <!-- User is not logged in -->
+                <a class="btn btn-outline" href="login.html">Sign in</a>
+
+                <a class="btn btn-primary" href="user_registration.html">
+                    Sign up →
+                </a>
+
+            <%
+                } else {
+            %>
+
+                <!-- Logged-in user -->
+                <a class="user-name" href="view_profile">
+                    Welcome, <%= userName %>
+                </a>
+
+            <%
+                }
+            %>
 
     </div>
 </nav>
@@ -195,11 +219,10 @@
 
                 <div class="detail-ctas">
                     <a class="btn btn-primary" href="#offers">View offers →</a>
-                    <button class="btn btn-outline"
-                            type="button"
-                            data-toast="Test-drive request saved. We'll contact you shortly.">
-                        Book a test drive
-                    </button>
+                    <a class="btn btn-outline"
+                       href="<%= request.getContextPath() %>/BookingDisplayServlet?carId=<%= car.getCarId() %>">
+                        Book Car
+                    </a>
                 </div>
 
                 <p class="fine-print">*Ex-showroom price. Terms and conditions apply.</p>
